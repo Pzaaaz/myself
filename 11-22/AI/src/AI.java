@@ -17,9 +17,11 @@ public class AI extends MIDlet
 	public void pauseApp(){
 	}
 }
-class MainCanvas extends Canvas
+class MainCanvas extends Canvas implements Runnable
 {
-	int x,y,counnt;
+	Thread thread;
+	int heroX,heroY,bossX,bossY,counnt;
+	Image bossImg;
 	Image heroImg [][] = new Image[4][3];
 	Image currentImg;
 	public MainCanvas(){
@@ -31,22 +33,58 @@ class MainCanvas extends Canvas
 					heroImg[i][j] = Image.createImage("/sayo"+i+j+".png");
 					}
 				}
-
+            bossImg = Image.createImage("/zuzu000.png");
 			currentImg = heroImg[1][1];
 
-			x = 120;
-			y = 100;
+			bossX = 0;
+			bossY = 0;
+
+			heroX = 120;
+			heroY = 100;
+
 			counnt=0;
+
+			thread=new Thread(this);
+			thread.start();
 		}
 		catch (IOException e)
 		{
 			e.printStackTrace();
 		}
 	}
+	public void run(){
+		while(true)
+		{
+			try
+			{
+				Thread.sleep(200);//FPS:屏幕刷新率
+			}
+			catch (InterruptedException e)
+			{
+				e.printStackTrace();
+			}
+			if (bossX<heroX)
+			{
+				bossX++;
+			}
+			else{
+			    bossX--;
+			}
+			if (bossY<heroY)
+			{
+				bossY++;
+			}
+			else{
+			    bossY--;
+			}
+			repaint();
+		}
+	}
 	public void paint(Graphics g){
 		g.setColor(0,0,0);
 		g.fillRect(0,0,getWidth(),getHeight());
-		g.drawImage(currentImg,x,y,0);
+		g.drawImage(currentImg,heroX,heroY,0);
+		g.drawImage(bossImg,bossX,bossY,0);
 	}
 	public void keyPressed(int keyCode){
 		int action = getGameAction(keyCode);
@@ -60,8 +98,7 @@ class MainCanvas extends Canvas
 				currentImg = heroImg[2][2];
 		    }
 			System.out.println("向左转");
-			x-=1;
-			repaint();
+			heroX-=1;
 		}
 		else if(action ==UP){
 			if (counnt==0){
@@ -73,8 +110,7 @@ class MainCanvas extends Canvas
 				currentImg = heroImg[0][2];
 		    }
 			System.out.println("向上转");
-			y-=1;
-			repaint();
+			heroY-=1;
 		}
 		else if(action == DOWN){
 			if (counnt==0){
@@ -86,8 +122,7 @@ class MainCanvas extends Canvas
 				currentImg = heroImg[1][2];
 		    }
 			System.out.println("向下转");
-			y+=1;
-			repaint();
+			heroY+=1;
 		}
 		else if(action ==RIGHT){
 			if (counnt==0){
@@ -99,8 +134,7 @@ class MainCanvas extends Canvas
 				currentImg = heroImg[3][2];
 		    }
 			System.out.println("向右转");
-			x+=1;
-			repaint();
+			heroX+=1;
 		}
 	}
 }
